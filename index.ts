@@ -98,13 +98,34 @@ export const updatePost = async ({
   response.body = { msg: `Cannot find post ${params.title}` };
 };
 
+export const deletePost = ({
+  params,
+  response,
+}: {
+  params: {
+    title: string;
+  };
+  response: any;
+}) => {
+  const lengthBefore = posts.length;
+  posts = posts.filter((post) => post.title !== params.title);
 
+  if (posts.length === lengthBefore) {
+    response.status = 400;
+    response.body = { msg: `Cannot find post ${params.title}` };
+    return;
+  }
+
+  response.body = { msg: "OK" };
+  response.status = 200;
+};
 
 router
   .get("/posts", getPosts)
   .get("/posts/:title", getPost)
   .post("/posts", addPost)
-  .put("/posts/:title", updatePost);
+  .put("/posts/:title", updatePost)
+  .delete("/posts/:title", deletePost);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
