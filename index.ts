@@ -6,8 +6,19 @@ const HOST = "localhost";
 
 const router = new Router();
 
-app.use((ctx) => {
-  ctx.response.body = "Hello world!";
-});
+router
+  .get("/", (ctx) => {
+    ctx.response.body = "Home page";
+  })
+  .get("/contact", (ctx) => {
+    ctx.response.body = "Contact page";
+  })
+  .post("/addComment", (ctx) => {
+    ctx.response.body = "Comment added";
+    // Implement code
+  });
+
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 await app.listen(`${HOST}:${PORT}`);
