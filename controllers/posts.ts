@@ -1,7 +1,13 @@
 import { IPost } from "../types.ts";
 import { Post } from "../models/post.ts";
+import * as yup from "https://cdn.pika.dev/yup@^0.29.0";
 
-export const getPosts = async ({ response }: { response: any }) => {
+const createPostSchema = yup.object({
+  title: yup.string().required(),
+  content: yup.string().required()
+});
+
+export const getPosts = async({ response }: { response: any }) => {
   response.body = await Post.findAll();
 };
 
@@ -33,8 +39,11 @@ export const addPost = async ({
   request: any;
   response: any;
 }) => {
-  const body = await request.body();
-  await Post.insert(body.value);
+    const body = await request.body();
+
+    await createPostSchema.validate(body.value);
+
+    await Post.insert(body.value);
 
   response.body = { msg: "OK" };
   response.status = 200;

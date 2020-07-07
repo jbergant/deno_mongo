@@ -31,7 +31,7 @@ class PostModel {
     data: any,
   ): Promise<Boolean> {
     try {
-      await this.data.insertOne(data);
+      await this.data.insertOne({ ...data, url: data.title.toLowerCase( ).replace(/\W+/g, "_")});
       return true;
     } catch (error) {
       throw error;
