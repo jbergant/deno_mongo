@@ -1,5 +1,5 @@
 import { Application } from "https://deno.land/x/oak/mod.ts";
-
+import { handleErrors } from "./middlewares.ts";
 import router from "./routes.ts";
 
 const env = Deno.env.toObject();
@@ -7,6 +7,8 @@ const PORT = Number(env.PORT) || 8000;
 const HOST = env.HOST || "localhost";
 
 const app = new Application();
+
+app.use(handleErrors);
 
 app.use(router.routes());
 app.use(router.allowedMethods());

@@ -20,45 +20,31 @@ class PostModel {
   }
 
   async findOneByTitle(title: string): Promise<Partial<IPost>[]> {
-    try {
-      return await this.data.find({ title });
-    } catch (error) {
-      throw error;
-    }
+    return await this.data.find({ title });
   }
 
   async insert(
     data: any,
   ): Promise<Boolean> {
-    try {
-      await this.data.insertOne({ ...data, url: data.title.toLowerCase( ).replace(/\W+/g, "_")});
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    await this.data.insertOne(
+      { ...data, url: data.title.toLowerCase().replace(/\W+/g, "_") },
+    );
+    return true;
   }
 
   async update(
     title: string,
     content: string,
   ): Promise<Number> {
-    try {
-      const { matchedCount } = await this.data.updateOne(
-        { title },
-        { $set: { content } },
-      );
-      return matchedCount;
-    } catch (error) {
-      throw error;
-    }
+    const { matchedCount } = await this.data.updateOne(
+      { title },
+      { $set: { content } },
+    );
+    return matchedCount;
   }
 
   async delete(title: string): Promise<Number> {
-    try {
-      return await this.data.deleteOne({ title });
-    } catch (error) {
-      throw error;
-    }
+    return await this.data.deleteOne({ title });
   }
 }
 

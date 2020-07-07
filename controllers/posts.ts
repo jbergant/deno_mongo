@@ -12,7 +12,11 @@ const updatePostSchema = yup.object({
 });
 
 export const getPosts = async ({ response }: { response: any }) => {
-  response.body = await Post.findAll();
+  try {
+    response.body = await Post.findAll();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getPost = async ({
@@ -25,15 +29,19 @@ export const getPost = async ({
 
   response: any;
 }) => {
-  const post = await Post.findOneByTitle(params.title);
-  if (post.length) {
-    response.status = 200;
-    response.body = post[0];
-    return;
-  }
+  try {
+    const post = await Post.findOneByTitle(params.title);
+    if (post.length) {
+      response.status = 200;
+      response.body = post[0];
+      return;
+    }
 
-  response.status = 400;
-  response.body = { msg: `Cannot find post ${params.title}` };
+    response.status = 400;
+    response.body = { msg: `Cannot find post ${params.title}` };
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const addPost = async ({
@@ -44,8 +52,14 @@ export const addPost = async ({
   response: any;
 }) => {
   const body = await request.body();
-
-  await createPostSchema.validate(body.value);
+  try {
+    const foo = await createPostSchema.validate(body.value);
+  } catch (error) {
+    const { message, status = 422, stack = null } = error;
+    response.body = { message, status, stack };
+    response.status = 422;
+    return;
+  }
 
   await Post.insert(body.value);
 
@@ -64,22 +78,33 @@ export const updatePost = async ({
   request: any;
   response: any;
 }) => {
-  const body = await request.body();
-  await updatePostSchema.validate(body.value);
-  const { content }: { content: string } = body.value;
-  const matchedCount = await Post.update(
-    params.title,
-    content,
-  );
+  try {
+    const body = await request.body();
+    try {
+      await updatePostSchema.validate(body.value);
+    } catch (error) {
+      const { message, status = 422, stack = null } = error;
+      response.body = { message, status, stack };
+      response.status = 422;
+      return;
+    }
+    const { content }: { content: string } = body.value;
+    const matchedCount = await Post.update(
+      params.title,
+      content,
+    );
 
-  if (matchedCount > 0) {
-    response.status = 200;
-    response.body = { msg: "OK" };
-    return;
+    if (matchedCount > 0) {
+      response.status = 200;
+      response.body = { msg: "OK" };
+      return;
+    }
+
+    response.status = 400;
+    response.body = { msg: `Cannot find post ${params.title}` };
+  } catch (error) {
+    throw error;
   }
-
-  response.status = 400;
-  response.body = { msg: `Cannot find post ${params.title}` };
 };
 
 export const deletePost = async ({
@@ -91,14 +116,18 @@ export const deletePost = async ({
   };
   response: any;
 }) => {
-  const deleteCount = await Post.delete(params.title);
+  try {
+    const deleteCount = await Post.delete(params.title);
 
-  if (deleteCount === 0) {
-    response.status = 400;
-    response.body = { msg: `Cannot find post ${params.title}` };
-    return;
+    if (deleteCount === 0) {
+      response.status = 400;
+      response.body = { msg: `Cannot find post ${params.title}` };
+      return;
+    }
+
+    response.body = { msg: "OK" };
+    response.status = 200;
+  } catch (error) {
+    throw error;
   }
-
-  response.body = { msg: "OK" };
-  response.status = 200;
 };
