@@ -4,10 +4,14 @@ import * as yup from "https://cdn.pika.dev/yup@^0.29.0";
 
 const createPostSchema = yup.object({
   title: yup.string().required(),
-  content: yup.string().required()
+  content: yup.string().required(),
 });
 
-export const getPosts = async({ response }: { response: any }) => {
+const updatePostSchema = yup.object({
+  content: yup.string().required(),
+});
+
+export const getPosts = async ({ response }: { response: any }) => {
   response.body = await Post.findAll();
 };
 
@@ -39,11 +43,11 @@ export const addPost = async ({
   request: any;
   response: any;
 }) => {
-    const body = await request.body();
+  const body = await request.body();
 
-    await createPostSchema.validate(body.value);
+  await createPostSchema.validate(body.value);
 
-    await Post.insert(body.value);
+  await Post.insert(body.value);
 
   response.body = { msg: "OK" };
   response.status = 200;
@@ -61,6 +65,7 @@ export const updatePost = async ({
   response: any;
 }) => {
   const body = await request.body();
+  await updatePostSchema.validate(body.value);
   const { content }: { content: string } = body.value;
   const matchedCount = await Post.update(
     params.title,
