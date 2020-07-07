@@ -31,15 +31,33 @@ let posts: Array<IPost> = [
 
 const router = new Router();
 
-
-
 export const getPosts = ({ response }: { response: any }) => {
-    response.body = posts;
+  response.body = posts;
+};
+
+export const getPost = ({
+  params,
+  response,
+}: {
+  params: {
+    title: string;
   };
-  
-  router
-    .get("/posts", getPosts);
-  
+  response: any;
+}) => {
+  const post = posts.filter((post) => post.title === params.title);
+  if (post.length) {
+    response.status = 200;
+    response.body = post[0];
+    return;
+  }
+
+  response.status = 400;
+  response.body = { msg: `Cannot find post ${params.title}` };
+};
+
+router
+  .get("/posts", getPosts)
+  .get("/posts/:title", getPost);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
