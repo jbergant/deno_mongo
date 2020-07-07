@@ -31,6 +31,16 @@ let posts: Array<IPost> = [
 
 const router = new Router();
 
+
+
+export const getPosts = ({ response }: { response: any }) => {
+    response.body = posts;
+  };
+  
+  router
+    .get("/posts", getPosts);
+  
+
 app.use(router.routes());
 app.use(router.allowedMethods());
 
