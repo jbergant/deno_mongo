@@ -6,17 +6,31 @@ const HOST = "localhost";
 
 const router = new Router();
 
+export const getHome = ({ response }: { response: any }) => {
+  response.body = "Home page";
+};
+
+export const getContact = ({ response }: { response: any }) => {
+  response.body = "Contact page";
+};
+
+export const saveComment = async ({
+  request,
+  response,
+}: {
+  request: any;
+  response: any;
+}) => {
+  const body = await request.body();
+  // Do something with data
+  response.body = "Comment added";
+  response.status = 200;
+};
+
 router
-  .get("/", (ctx) => {
-    ctx.response.body = "Home page";
-  })
-  .get("/contact", (ctx) => {
-    ctx.response.body = "Contact page";
-  })
-  .post("/addComment", (ctx) => {
-    ctx.response.body = "Comment added";
-    // Implement code
-  });
+  .get("/", getHome)
+  .get("/contact", getContact)
+  .post("/addComment", saveComment);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
