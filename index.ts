@@ -55,9 +55,25 @@ export const getPost = ({
   response.body = { msg: `Cannot find post ${params.title}` };
 };
 
+export const addPost = async ({
+  request,
+  response,
+}: {
+  request: any;
+  response: any;
+}) => {
+  const body = await request.body();
+  const post: IPost = body.value;
+  posts.push(post);
+
+  response.body = { msg: "OK" };
+  response.status = 200;
+};
+
 router
   .get("/posts", getPosts)
-  .get("/posts/:title", getPost);
+  .get("/posts/:title", getPost)
+  .post("/posts", addPost);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
