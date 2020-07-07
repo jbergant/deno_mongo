@@ -70,10 +70,41 @@ export const addPost = async ({
   response.status = 200;
 };
 
+export const updatePost = async ({
+  params,
+  request,
+  response,
+}: {
+  params: {
+    title: string;
+  };
+  request: any;
+  response: any;
+}) => {
+  const temp = posts.filter((existingPost) =>
+    existingPost.title === params.title
+  );
+  const body = await request.body();
+  const { content }: { content: string } = body.value;
+
+  if (temp.length) {
+    temp[0].content = content;
+    response.status = 200;
+    response.body = { msg: "OK" };
+    return;
+  }
+
+  response.status = 400;
+  response.body = { msg: `Cannot find post ${params.title}` };
+};
+
+
+
 router
   .get("/posts", getPosts)
   .get("/posts/:title", getPost)
-  .post("/posts", addPost);
+  .post("/posts", addPost)
+  .put("/posts/:title", updatePost);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
