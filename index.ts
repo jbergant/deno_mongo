@@ -1,133 +1,16 @@
-import { Application, Router } from "https://deno.land/x/oak/mod.ts";
+import { Application } from "https://deno.land/x/oak/mod.ts";
 
-const app = new Application();
+import router from "./routes.ts";
+
 const env = Deno.env.toObject();
 const PORT = Number(env.PORT) || 8000;
 const HOST = env.HOST || "localhost";
 
-interface IPost {
-  title: string;
-  url: string;
-  content: string;
-}
-
-let posts: Array<IPost> = [
-  {
-    title: "Chatbots",
-    url: "chatbots",
-    content: "Article about chatbots",
-  },
-  {
-    title: "Google Assistant app",
-    url: "google_assistant_app",
-    content: "Article about Google Assistant apps",
-  },
-  {
-    title: "Blog with Jekyll",
-    url: "blog_with_jekyll",
-    content: "Article about blogging",
-  },
-];
-
-const router = new Router();
-
-export const getPosts = ({ response }: { response: any }) => {
-  response.body = posts;
-};
-
-export const getPost = ({
-  params,
-  response,
-}: {
-  params: {
-    title: string;
-  };
-  response: any;
-}) => {
-  const post = posts.filter((post) => post.title === params.title);
-  if (post.length) {
-    response.status = 200;
-    response.body = post[0];
-    return;
-  }
-
-  response.status = 400;
-  response.body = { msg: `Cannot find post ${params.title}` };
-};
-
-export const addPost = async ({
-  request,
-  response,
-}: {
-  request: any;
-  response: any;
-}) => {
-  const body = await request.body();
-  const post: IPost = body.value;
-  posts.push(post);
-
-  response.body = { msg: "OK" };
-  response.status = 200;
-};
-
-export const updatePost = async ({
-  params,
-  request,
-  response,
-}: {
-  params: {
-    title: string;
-  };
-  request: any;
-  response: any;
-}) => {
-  const temp = posts.filter((existingPost) =>
-    existingPost.title === params.title
-  );
-  const body = await request.body();
-  const { content }: { content: string } = body.value;
-
-  if (temp.length) {
-    temp[0].content = content;
-    response.status = 200;
-    response.body = { msg: "OK" };
-    return;
-  }
-
-  response.status = 400;
-  response.body = { msg: `Cannot find post ${params.title}` };
-};
-
-export const deletePost = ({
-  params,
-  response,
-}: {
-  params: {
-    title: string;
-  };
-  response: any;
-}) => {
-  const lengthBefore = posts.length;
-  posts = posts.filter((post) => post.title !== params.title);
-
-  if (posts.length === lengthBefore) {
-    response.status = 400;
-    response.body = { msg: `Cannot find post ${params.title}` };
-    return;
-  }
-
-  response.body = { msg: "OK" };
-  response.status = 200;
-};
-
-router
-  .get("/posts", getPosts)
-  .get("/posts/:title", getPost)
-  .post("/posts", addPost)
-  .put("/posts/:title", updatePost)
-  .delete("/posts/:title", deletePost);
+const app = new Application();
 
 app.use(router.routes());
 app.use(router.allowedMethods());
+
+console.log(`Listening on ${HOST}:${PORT}...`);
 
 await app.listen(`${HOST}:${PORT}`);
