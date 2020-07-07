@@ -1,8 +1,10 @@
-import { Application } from "https://deno.land/x/oak/mod.ts";
+import { Application, Router } from "https://deno.land/x/oak/mod.ts";
 
 const app = new Application();
 const PORT = 8000;
 const HOST = "localhost";
+
+const router = new Router();
 
 app.use((ctx) => {
   ctx.response.body = "Hello world!";
