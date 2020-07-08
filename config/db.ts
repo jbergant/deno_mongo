@@ -1,4 +1,7 @@
-import { MongoClient, Collection } from "https://deno.land/x/mongo@v0.8.0/mod.ts";
+import {
+  MongoClient,
+  Collection,
+} from "https://deno.land/x/mongo@v0.8.0/mod.ts";
 export class Database {
   public client: MongoClient;
   private url: string;

@@ -1,12 +1,11 @@
 import { IPost } from "../types.ts";
-import { posts } from "../data/data.ts";
 import { Post } from "../models/post.ts";
 
 export const getPosts = async ({ response }: { response: any }) => {
   response.body = await Post.findAll();
 };
 
-export const getPost = ({
+export const getPost = async ({
   params,
   response,
 }: {
@@ -16,7 +15,7 @@ export const getPost = ({
 
   response: any;
 }) => {
-  const post = posts.filter((post) => post.title === params.title);
+  const post = await Post.findOneByTitle(params.title);
   if (post.length) {
     response.status = 200;
     response.body = post[0];
@@ -35,8 +34,7 @@ export const addPost = async ({
   response: any;
 }) => {
   const body = await request.body();
-  const post: IPost = body.value;
-  posts.push(post);
+  await Post.insert(body.value);
 
   response.body = { msg: "OK" };
   response.status = 200;
@@ -53,14 +51,14 @@ export const updatePost = async ({
   request: any;
   response: any;
 }) => {
-  const temp = posts.filter((existingDPost) =>
-    existingDPost.title === params.title
-  );
   const body = await request.body();
   const { content }: { content: string } = body.value;
+  const matchedCount = await Post.update(
+    params.title,
+    content,
+  );
 
-  if (temp.length) {
-    temp[0].content = content;
+  if (matchedCount > 0) {
     response.status = 200;
     response.body = { msg: "OK" };
     return;
@@ -70,7 +68,7 @@ export const updatePost = async ({
   response.body = { msg: `Cannot find post ${params.title}` };
 };
 
-export const deletePost = ({
+export const deletePost = async ({
   params,
   response,
 }: {
@@ -79,10 +77,9 @@ export const deletePost = ({
   };
   response: any;
 }) => {
-  const lengthBefore = posts.length;
-  const temp = posts.filter((post) => post.title !== params.title);
+  const deleteCount = await Post.delete(params.title);
 
-  if (temp.length === lengthBefore) {
+  if (deleteCount === 0) {
     response.status = 400;
     response.body = { msg: `Cannot find post ${params.title}` };
     return;
