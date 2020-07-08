@@ -1,8 +1,9 @@
 import { IPost } from "../types.ts";
 import { posts } from "../data/data.ts";
+import { Post } from "../models/post.ts";
 
-export const getPosts = ({ response }: { response: any }) => {
-  response.body = posts;
+export const getPosts = async ({ response }: { response: any }) => {
+  response.body = await Post.findAll();
 };
 
 export const getPost = ({
